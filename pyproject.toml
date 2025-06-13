@@ -35,7 +35,9 @@ classifiers = [
 dependencies = [
     "einops",
     "lightning",
+    "mrcfile>=1.5.4",
     "pooch",
+    "scipy>=1.15.3",
     "tiler",
     "torch",
     "torch-fourier-rescale",
