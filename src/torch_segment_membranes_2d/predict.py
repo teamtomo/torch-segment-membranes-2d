@@ -20,7 +20,7 @@ def predict_membrane_mask(
     pixel_spacing: float,
     probability_threshold: float,
     model_checkpoint_file: Optional[Path] = None,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> torch.Tensor:
     """Predict membrane masks for a batch of arbitrarily sized images.
 
     Parameters
