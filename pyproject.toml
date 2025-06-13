@@ -19,21 +19,29 @@ name = "torch-segment-membranes-2d"
 dynamic = ["version"]
 description = "Segment membranes in cryo-EM images"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "BSD-3-Clause" }
-authors = [{ name = "Talley Lambert", email = "talley.lambert@gmail.com" }]
+authors = [{ name = "Alister Burt", email = "alisterburt@gmail.com" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: BSD License",
-    "Programming Language :: Python :: 3",    
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+    "einops",
+    "lightning",
+    "pooch",
+    "tiler",
+    "torch",
+    "torch-fourier-rescale",
+    "torchvision",
+    "typer",
+]
 
 # https://peps.python.org/pep-0621/#dependencies-optional-dependencies
 # add dependencies for "extra" features here.  Not dev dependencies.
@@ -47,8 +55,8 @@ repository = "https://github.com/tlambert03/torch-segment-membranes-2d"
 # Entry points
 # https://peps.python.org/pep-0621/#entry-points
 # same as console_scripts entry point
-# [project.scripts]
-# torch-segment-membranes-2d-cli = "torch_segment_membranes_2d:main_cli"
+[project.scripts]
+torch-segment-membranes-2d = "torch_segment_membranes_2d:cli"
 
 # [project.entry-points."some.group"]
 # tomatoes = "torch_segment_membranes_2d:main_tomatoes"
