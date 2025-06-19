@@ -11,6 +11,7 @@ from torch.utils.data import Dataset
 from torchvision.transforms import functional as TF
 
 from torch_segment_membranes_2d.dataset.augmentation import random_flip, random_square_crop_at_scale
+from torch_segment_membranes_2d.utils import normalize_image
 from torch_segment_membranes_2d.constants import TRAINING_IMAGE_DIMENSIONS
 
 
@@ -97,11 +98,11 @@ class MembraneSegmentationDataset(Dataset):
         # add channel dim for torchvision transforms
         image = einops.rearrange(image, "h w -> 1 h w")
         mask = einops.rearrange(mask, "h w -> 1 h w")
+        image = normalize_image(image)
         if self._is_training:
             image, mask = self.augment(image, mask)
         else:
             image, mask = self.crop_for_validation(image, mask)
-        image = self.normalize(image)
         image = image.float().contiguous()
         mask = mask.long().contiguous()
         mask = einops.rearrange(mask, "1 h w -> h w")
@@ -137,8 +138,3 @@ class MembraneSegmentationDataset(Dataset):
         image = TF.crop(image, *self._validation_crop_parameters)
         mask = TF.crop(mask, *self._validation_crop_parameters)
         return image, mask
-
-    def normalize(self, image: torch.Tensor) -> torch.Tensor:
-        mean, std = torch.mean(image), torch.std(image)
-        torch.nan_to_num(image, nan=mean)
-        return (image - mean) / std
