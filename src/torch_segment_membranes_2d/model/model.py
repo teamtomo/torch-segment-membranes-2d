@@ -14,7 +14,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from .dice import dice_loss, dice_score
 from .model_parts import Conv3x3, Down, Up
-from ..utils import normalise_2d
+from ..utils import normalize_image
 from ..constants import TRAINING_IMAGE_DIMENSIONS
 
 
@@ -111,17 +111,17 @@ class ResidualUNet18(L.LightningModule):
         dataloader_idx: int = 0,
     ) -> torch.Tensor:
         """Tiled prediction."""
+        image = normalize_image(image)
         tiler = Tiler(
             data_shape=image.shape,
             tile_shape=(256, 256),
             overlap=0.35,
             mode="reflect",
         )
-        merger = Merger(tiler)
+        merger = Merger(tiler, window="hamming")
         image = image.cpu().numpy()
         for idx, tiles in tiler.iterate(image, batch_size=self.batch_size):
-            tiles = torch.as_tensor(tiles, dtype=torch.float, device=self.device)
-            tiles = normalise_2d(tiles)
+            tiles = torch.as_tensor(tiles, dtype=torch.float32, device=self.device)
             tiles = rearrange(tiles, "b h w -> b 1 h w")
             prediction = self(tiles)
             probabilities = F.softmax(prediction, dim=1)[:, 1, ...]

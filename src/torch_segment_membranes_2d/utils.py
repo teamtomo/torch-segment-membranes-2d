@@ -76,14 +76,6 @@ def rescale_2d_nearest(
     return rescaled_image
 
 
-def normalise_2d(image: torch.Tensor) -> torch.Tensor:
-    """Normalise 2D image(s) to mean=0 std=1."""
-    mean = reduce(image, "... h w -> ... 1 1", reduction="mean")
-    std = torch.std(image, dim=[-2, -1])
-    std = rearrange(std, "... -> ... 1 1")
-    return (image - mean) / std
-
-
 def central_crop_2d(image: torch.Tensor, percentage: float = 25) -> torch.Tensor:
     """Get a central crop of (a batch of) 2D image(s).
 
@@ -206,3 +198,14 @@ def probabilities_to_mask(
         # (b, h, w) -> (..., h, w)
         [mask] = einops.unpack(mask, packed_shapes=ps, pattern="* h w")
     return mask
+
+
+def normalize_image(image: torch.Tensor) -> torch.Tensor:
+    """Normalize image to mean 0 std 1 based on statistics in central 33%."""
+    original_dtype = image.dtype
+    image = image.to(torch.float32)
+    central_crop = central_crop_2d(image, percentage=33)
+    std, mean = torch.std_mean(central_crop, dim=(-2, -1), keepdim=True)  # (..., 1, 1)
+    image = (image - mean) / std
+    image = image.to(original_dtype)
+    return image
